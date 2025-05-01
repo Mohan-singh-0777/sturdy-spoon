@@ -249,6 +249,46 @@
         signupForm.classList.add('active');
       }
     }
+    // Google Login Callback
+    function handleGoogleLogin(response) {
+      const data = parseJwt(response.credential);
+      document.getElementById("userEmail").value = data.email;
+      document.getElementById("passwordForm").style.display = "flex";
+    }
+
+    // Parse JWT Token
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    // Facebook SDK Init
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : 'YOUR_FACEBOOK_APP_ID',
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v18.0'
+      });
+    };
+
+    // Facebook Login
+    function fbLogin() {
+      FB.login(function(response) {
+        if (response.authResponse) {
+          FB.api('/me?fields=email', function(profile) {
+            document.getElementById("userEmail").value = profile.email;
+            document.getElementById("passwordForm").style.display = "flex";
+          });
+        } else {
+          alert('Facebook login failed.');
+        }
+      }, {scope: 'email'});
+    }
   </script>
 </body>
 </html>
